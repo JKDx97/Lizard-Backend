@@ -4,13 +4,27 @@ const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 require('dotenv').config();
 
-// Inicializar Firebase Storage
-const fileName = path.resolve(process.env.FIREBASE_KEY_PATH);
-const storageBucket = new Storage({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    keyFilename: fileName
-});
-const bucket = storageBucket.bucket(process.env.FIREBASE_BUCKET_NAME);
+// Inicializar Firebase Storage (compatible local + Render)
+let storageConfig;
+
+if (process.env.FIREBASE_CREDENTIALS) {
+    // En Render: JSON de credenciales como string
+    storageConfig = {
+        credentials: JSON.parse(process.env.FIREBASE_CREDENTIALS),
+        projectId: process.env.FIREBASE_PROJECT_ID
+    };
+} else {
+    // En desarrollo local: usar el archivo JSON
+    const keyPath = path.resolve(process.env.FIREBASE_KEY_PATH);
+    storageConfig = {
+        keyFilename: keyPath,
+        projectId: process.env.FIREBASE_PROJECT_ID
+    };
+}
+
+const storage = new Storage(storageConfig);
+const bucket = storage.bucket(process.env.FIREBASE_BUCKET_NAME);
+
 
 exports.uploadPhotoProfile = async (req, res) => {
     try {

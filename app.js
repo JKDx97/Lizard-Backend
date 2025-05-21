@@ -78,8 +78,9 @@ io.on('connection', (socket) => {
         socket.disconnect(); // Desconectar el socket
     });
 });
+const PORT = process.env.PORT || 3000;
 
 // Iniciar el servidor
-server.listen(3000, () => {
+server.listen(PORT, () => {
     console.log('Servidor ejecutándose en puerto 3000');
 });
