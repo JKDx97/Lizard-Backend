@@ -15,7 +15,7 @@ const io = socketIo(server, {
     cors: {
         origin: '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        credentials: false
+        credentials: true
 
     }
 });
@@ -24,7 +24,7 @@ const io = socketIo(server, {
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: false
+    credentials: true
 }));
 // Middleware para analizar cuerpos JSON
 app.use(express.json());
