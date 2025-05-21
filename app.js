@@ -22,7 +22,7 @@ const io = socketIo(server, {
 app.use(cors({
     origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true
+    credentials: false
 }));
 // Middleware para analizar cuerpos JSON
 app.use(express.json());
