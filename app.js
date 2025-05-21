@@ -7,22 +7,23 @@ const db = require('./db/db');
 const Message = require('./models/message'); // Asegúrate de importar el modelo Message
 
 db();
+const allowedOrigins = [process.env.FRONTEND_ORIGIN, 'http://localhost:4200'];
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: 'http://localhost:4200',
-        methods: ['GET', 'POST']
+        origin: allowedOrigins,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
     }
 });
 
 // Configurar CORS para las rutas HTTP
 app.use(cors({
-    origin: 'http://localhost:4200',
-    methods: ['GET', 'POST']
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true
 }));
-
 // Middleware para analizar cuerpos JSON
 app.use(express.json());
 
@@ -41,25 +42,25 @@ const register = require('./router/register-router');
 app.use('/register', register);
 
 const post = require('./router/post-router')
-app.use('/post' , post)
+app.use('/post', post)
 
 const profile = require('./router/profile-router')
-app.use('/profile' , profile)
+app.use('/profile', profile)
 
 const otherProfile = require('./router/otherProfile-router')
-app.use('/other' , otherProfile)
+app.use('/other', otherProfile)
 
 const like = require('./router/like-router')
-app.use('/like' , like)
+app.use('/like', like)
 
 const comment = require('./router/comments-router')
-app.use('/comm' , comment)
+app.use('/comm', comment)
 
 const follow = require('./router/follow-router')
-app.use('/foll' , follow)
+app.use('/foll', follow)
 
 const message = require('./router/message-router')
-app.use('/mess' , message)
+app.use('/mess', message)
 
 
 io.on('connection', (socket) => {
@@ -82,5 +83,5 @@ const PORT = process.env.PORT || 3000;
 
 // Iniciar el servidor
 server.listen(PORT, () => {
-    console.log('Servidor ejecutándose en puerto 3000');
+    console.log(`Servidor ejecutándose en puerto ${PORT}`);
 });
