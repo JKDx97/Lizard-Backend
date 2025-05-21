@@ -13,18 +13,18 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: allowedOrigins,
+        origin: '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        credentials: true
+        credentials: false
 
     }
 });
 
 // Configurar CORS para las rutas HTTP
 app.use(cors({
-    origin: allowedOrigins,
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    credentials: true
+    credentials: false
 }));
 // Middleware para analizar cuerpos JSON
 app.use(express.json());
