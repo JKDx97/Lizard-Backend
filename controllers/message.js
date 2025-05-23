@@ -19,10 +19,6 @@ exports.sendMessage = async (req, res) => {
     });
 
     await message.save();
-
-    req.io.emit('newMessage', message);
-    console.log('Evento newMessage emitido:', message);
-
     const receiverSocketId = userSocketMap.get(receiverId);
     if (receiverSocketId) {
       req.io.to(receiverSocketId).emit('newMessage', message);
