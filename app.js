@@ -30,9 +30,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use((req, res, next) => {
-    req.io = io;
-    req.userSocketMap = userSocketMap;
-    // Adjuntar el objeto `io` a cada petición
+    req.io = io; // Adjuntar el objeto `io` a cada petición
     next();
 });
 
@@ -65,24 +63,15 @@ app.use('/foll', follow)
 
 const message = require('./router/message-router')
 app.use('/mess', message)
-const userSocketMap = {}; // Mapeo de userId a socketId
 
 
 io.on('connection', (socket) => {
 
     // Manejar el inicio de sesión
     socketHandlers(socket);
-    socket.on('register_user_socket', (userId) => {
-        userSocketMap[userId] = socket.id;
-        socket.userId = userId;
-        console.log(`Usuario ${userId} registrado con socket ${socket.id}`);
-    });
+
     // Escuchar el evento de desconexión
     socket.on('disconnect', () => {
-        if (socket.userId && userSocketMap[socket.userId]) {
-            delete userSocketMap[socket.userId];
-            console.log(`Socket ${socket.id} desconectado y eliminado de userSocketMap`);
-        }
     });
 
 
@@ -98,5 +87,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor ejecutándose en puerto ${PORT}`);
 });
-
-module.exports = { io, userSocketMap };
