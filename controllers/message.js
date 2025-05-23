@@ -27,7 +27,6 @@ exports.sendMessage = async (req, res) => {
     }
 
     // También puede emitir a todos si lo deseas
-    req.io.emit('newMessage', message);
     console.log('Evento newMessage emitido:', message);
 
     res.status(201).json({ message: 'Mensaje enviado exitosamente.', data: message });
