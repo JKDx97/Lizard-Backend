@@ -21,8 +21,6 @@ exports.sendMessage = async (req, res) => {
     await message.save();
 
     const io = req.io;
-    const receiverSocketId = userSocketMap.get(receiverId.toString());
-
     const senderSocketId = userSocketMap.get(senderId.toString());
     const receiverSocketId = userSocketMap.get(receiverId.toString());
 
@@ -33,7 +31,6 @@ exports.sendMessage = async (req, res) => {
     if (receiverSocketId && receiverSocketId !== senderSocketId) {
       io.to(receiverSocketId).emit('receiveMessage', message);
     }
-
 
     res.status(201).json({ message: 'Mensaje enviado exitosamente.', data: message });
   } catch (error) {
