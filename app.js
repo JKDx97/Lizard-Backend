@@ -71,7 +71,23 @@ io.on('connection', (socket) => {
     socketHandlers(socket);
 
     // Escuchar el evento de desconexión
+    console.log(`✅ Socket conectado: ${socket.id}`);
+
+    socket.on('registerUser', (userId) => {
+        if (userId) {
+            userSocketMap.set(userId.toString(), socket.id);
+            console.log(`🧠 Usuario ${userId} registrado con socket ID ${socket.id}`);
+        }
+    });
+
     socket.on('disconnect', () => {
+        for (const [userId, socketId] of userSocketMap.entries()) {
+            if (socketId === socket.id) {
+                userSocketMap.delete(userId);
+                console.log(`❌ Usuario ${userId} desconectado`);
+                break;
+            }
+        }
     });
 
 

@@ -1,9 +1,9 @@
-// controllers/messageController.js
+
+
 const Message = require('../models/message');
 const mongoose = require('mongoose');
 const userSocketMap = require('../utils/socketMap');
 
-// Envía un mensaje entre dos usuarios
 exports.sendMessage = async (req, res) => {
   const { senderId, receiverId, content } = req.body;
 
@@ -21,13 +21,11 @@ exports.sendMessage = async (req, res) => {
     await message.save();
 
     const io = req.io;
-
-
-    // Emitir solo al receptor si está conectado
     const receiverSocketId = userSocketMap.get(receiverId.toString());
+
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('receiveMessage', message);
-      console.log(`📨 Mensaje enviado en tiempo real a ${receiverId}`);
+      console.log(`📨 Mensaje en tiempo real enviado a ${receiverId}`);
     }
 
     res.status(201).json({ message: 'Mensaje enviado exitosamente.', data: message });
@@ -36,6 +34,7 @@ exports.sendMessage = async (req, res) => {
     res.status(500).json({ error: 'Error al enviar el mensaje.' });
   }
 };
+
 exports.getMessages = async (req, res) => {
   const { senderId, receiverId } = req.params;
 
@@ -49,7 +48,7 @@ exports.getMessages = async (req, res) => {
         { sender: senderId, receiver: receiverId },
         { sender: receiverId, receiver: senderId }
       ]
-    }).sort({ createdAt: 1 }); // Ordena por fecha de creación, de más antiguo a más reciente
+    }).sort({ createdAt: 1 });
 
     res.status(200).json({ messages });
   } catch (error) {
