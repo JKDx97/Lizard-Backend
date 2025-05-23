@@ -4,8 +4,8 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const loginHandler = require('./controllers/login');
 const db = require('./db/db');
-const Message = require('./models/message'); // Asegúrate de importar el modelo Message
-
+const Message = require('./models/message');
+const userSocketMap = require('./utils/socketMap') // Asegúrate de importar el modelo Message
 db();
 const allowedOrigins = [process.env.FRONTEND_ORIGIN, 'http://localhost:4200'];
 
