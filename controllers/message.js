@@ -1,7 +1,6 @@
 // controllers/messageController.js
 const Message = require('../models/message');
 const mongoose = require('mongoose');
-const receiverSocketId = req.userSocketMap[receiverId];
 
 // Envía un mensaje entre dos usuarios
 exports.sendMessage = async (req, res) => {
@@ -19,13 +18,15 @@ exports.sendMessage = async (req, res) => {
     });
 
     await message.save();
-    // Emitir mensaje al receptor específico si está conectado
-    const receiverSocketId = userSocketMap[receiverId];
+
+    // ✅ Aquí sí puedes usar req.userSocketMap
+    const receiverSocketId = req.userSocketMap[receiverId];
     if (receiverSocketId) {
       req.io.to(receiverSocketId).emit('newMessage', message);
       console.log(`Mensaje enviado a ${receiverId} en socket ${receiverSocketId}`);
     }
 
+    // También puede emitir a todos si lo deseas
     req.io.emit('newMessage', message);
     console.log('Evento newMessage emitido:', message);
 
