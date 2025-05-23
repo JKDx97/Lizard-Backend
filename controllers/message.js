@@ -1,50 +1,58 @@
-  // controllers/messageController.js
-  const Message = require('../models/message');
-  const mongoose = require('mongoose');
+// controllers/messageController.js
+const Message = require('../models/message');
+const mongoose = require('mongoose');
+const userSocketMap = require('../utils/socketMap');
 
-  // Envía un mensaje entre dos usuarios
-  exports.sendMessage = async (req, res) => {
-    const { senderId, receiverId, content } = req.body;
+// Envía un mensaje entre dos usuarios
+exports.sendMessage = async (req, res) => {
+  const { senderId, receiverId, content } = req.body;
 
-    if (!senderId || !receiverId || !content) {
-      return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+  if (!senderId || !receiverId || !content) {
+    return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+  }
+
+  try {
+    const message = new Message({
+      sender: new mongoose.Types.ObjectId(senderId),
+      receiver: new mongoose.Types.ObjectId(receiverId),
+      content,
+    });
+
+    await message.save();
+
+    const io = req.io;
+
+
+    // Emitir solo al receptor si está conectado
+    const receiverSocketId = userSocketMap.get(receiverId.toString());
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('receiveMessage', message);
+      console.log(`📨 Mensaje enviado en tiempo real a ${receiverId}`);
     }
 
-    try {
-      const message = new Message({
-        sender: new mongoose.Types.ObjectId(senderId),
-        receiver: new mongoose.Types.ObjectId(receiverId),
-        content,
-      });
+    res.status(201).json({ message: 'Mensaje enviado exitosamente.', data: message });
+  } catch (error) {
+    console.error('Error en sendMessage:', error);
+    res.status(500).json({ error: 'Error al enviar el mensaje.' });
+  }
+};
+exports.getMessages = async (req, res) => {
+  const { senderId, receiverId } = req.params;
 
-      await message.save();
+  if (!senderId || !receiverId) {
+    return res.status(400).json({ error: 'Los IDs de ambos usuarios son necesarios.' });
+  }
 
-      req.io.emit('newMessage', message);
-      console.log('Evento newMessage emitido:', message);
+  try {
+    const messages = await Message.find({
+      $or: [
+        { sender: senderId, receiver: receiverId },
+        { sender: receiverId, receiver: senderId }
+      ]
+    }).sort({ createdAt: 1 }); // Ordena por fecha de creación, de más antiguo a más reciente
 
-      res.status(201).json({ message: 'Mensaje enviado exitosamente.', data: message });
-    } catch (error) {
-      console.error('Error en sendMessage:', error);
-      res.status(500).json({ error: 'Error al enviar el mensaje.' });
-    }
-  };
-  exports.getMessages = async (req, res) => {
-    const { senderId, receiverId } = req.params;
-
-    if (!senderId || !receiverId) {
-      return res.status(400).json({ error: 'Los IDs de ambos usuarios son necesarios.' });
-    }
-
-    try {
-      const messages = await Message.find({
-        $or: [
-          { sender: senderId, receiver: receiverId },
-          { sender: receiverId, receiver: senderId }
-        ]
-      }).sort({ createdAt: 1 }); // Ordena por fecha de creación, de más antiguo a más reciente
-
-      res.status(200).json({ messages });
-    } catch (error) {
-      res.status(500).json({ error: 'Error al obtener los mensajes.' });
-    }
-  };
+    res.status(200).json({ messages });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los mensajes.' });
+  }
+};
