@@ -63,26 +63,31 @@ app.use('/foll', follow)
 
 const message = require('./router/message-router')
 app.use('/mess', message)
-
 const userSocketMap = {}; // Mapeo de userId a socketId
 
 
 io.on('connection', (socket) => {
-    console.log('Usuario conectado:', socket.id);
 
-    // Manejar login y almacenar socket
+    // Manejar el inicio de sesión
+    socketHandlers(socket);
     socket.on('register_user_socket', (userId) => {
         userSocketMap[userId] = socket.id;
         socket.userId = userId;
         console.log(`Usuario ${userId} registrado con socket ${socket.id}`);
     });
-
-    // Al desconectarse, eliminar del mapa
+    // Escuchar el evento de desconexión
     socket.on('disconnect', () => {
         if (socket.userId && userSocketMap[socket.userId]) {
             delete userSocketMap[socket.userId];
             console.log(`Socket ${socket.id} desconectado y eliminado de userSocketMap`);
         }
+    });
+
+
+    // Escuchar el evento de logout
+    socket.on('logout', () => {
+        console.log('Un usuario se ha desconectado');
+        socket.disconnect(); // Desconectar el socket
     });
 });
 const PORT = process.env.PORT || 3000;
@@ -91,5 +96,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor ejecutándose en puerto ${PORT}`);
 });
-
-module.exports = { io, userSocketMap };
