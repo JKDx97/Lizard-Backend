@@ -2,8 +2,6 @@ const bcrypt = require('bcryptjs');
 const Credential = require('../models/credential');
 const User = require('../models/user');
 
-const userSocketMap = new Map(); // 👈 Mapa global aquí (también puedes moverlo a un archivo común y exportarlo si prefieres)
-
 module.exports = (socket) => {
   socket.on('login', async ({ username, password }) => {
     try {
@@ -26,9 +24,6 @@ module.exports = (socket) => {
       if (!user) {
         return socket.emit('login_error', { msg: 'No se encontraron datos del usuario' });
       }
-
-      socket.userId = credential._id.toString();
-      userSocketMap.set(socket.userId, socket.id); 
 
       socket.userId = credential._id;
 
@@ -55,13 +50,4 @@ module.exports = (socket) => {
       socket.emit('login_error', { msg: 'Error en el servidor', details: error.message });
     }
   });
-  socket.on('disconnect', () => {
-    // Eliminar el socket del mapa si existe
-    if (socket.userId) {
-      userSocketMap.delete(socket.userId);
-    }
-    console.log(`Socket desconectado: ${socket.id}`);
-  });
 };
-
-module.exports.userSocketMap = userSocketMap; // 👈 Exportar si quieres usarlo en messageController.js
