@@ -1,7 +1,7 @@
 // controllers/messageController.js
 const Message = require('../models/message');
 const mongoose = require('mongoose');
-const { userSocketMap } = require('../app'); // ajusta la ruta si es necesario
+const receiverSocketId = req.userSocketMap[receiverId];
 
 // Envía un mensaje entre dos usuarios
 exports.sendMessage = async (req, res) => {

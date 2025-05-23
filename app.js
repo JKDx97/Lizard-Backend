@@ -30,7 +30,9 @@ app.use(cors({
 app.use(express.json());
 
 app.use((req, res, next) => {
-    req.io = io; // Adjuntar el objeto `io` a cada petición
+    req.io = io;
+    req.userSocketMap = userSocketMap;
+    // Adjuntar el objeto `io` a cada petición
     next();
 });
 
