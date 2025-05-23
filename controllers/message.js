@@ -23,10 +23,17 @@ exports.sendMessage = async (req, res) => {
     const io = req.io;
     const receiverSocketId = userSocketMap.get(receiverId.toString());
 
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('receiveMessage', message);
-      console.log(`📨 Mensaje en tiempo real enviado a ${receiverId}`);
+    const senderSocketId = userSocketMap.get(senderId.toString());
+    const receiverSocketId = userSocketMap.get(receiverId.toString());
+
+    if (senderSocketId) {
+      io.to(senderSocketId).emit('receiveMessage', message);
     }
+
+    if (receiverSocketId && receiverSocketId !== senderSocketId) {
+      io.to(receiverSocketId).emit('receiveMessage', message);
+    }
+
 
     res.status(201).json({ message: 'Mensaje enviado exitosamente.', data: message });
   } catch (error) {
